@@ -42,14 +42,14 @@
 #define LEASI_ERROR(...)                    SPDLOG_ERROR(__VA_ARGS__)
 #define LEASI_CRIT(...)                     SPDLOG_CRITICAL(__VA_ARGS__)
 
+namespace Common
+{
+    void InitializeLoggerDefault();
+}
+
 namespace Details
 {
     void OnFatalError(char const* Func, char const* File, int Line, char const* Expr);
-}
-
-namespace LExCommon
-{
-    void InitLoggerDefault();
 }
 
 #define _LEASI_FATALA_IMPL(Expression, Format, ...)                                     \

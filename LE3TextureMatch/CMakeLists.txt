@@ -4,6 +4,10 @@ set (PROJ_FOLDER ${CMAKE_CURRENT_SOURCE_DIR})
 set (PROJ_SOURCES
   ${PROJ_FOLDER}/Entry.cpp
   ${PROJ_FOLDER}/Entry.hpp
+  ${PROJ_FOLDER}/Hooks.cpp
+  ${PROJ_FOLDER}/Hooks.hpp
+  ${PROJ_FOLDER}/Manifest.cpp
+  ${PROJ_FOLDER}/Manifest.hpp
 )
 
 add_library (${PROJ_TARGET} SHARED ${PROJ_SOURCES})
