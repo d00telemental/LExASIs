@@ -84,7 +84,6 @@ namespace LExTextureMatch
 
     enum EMipFlags : std::uint32_t
     {
-        EMF_Placeholder                 = 1 << 0,   // This mip and all records after it are absent (not "empty").
         EMF_Original                    = 1 << 1,   // Mip should not be modified.
         EMF_External                    = 1 << 2,   // Mip is located in a texture file cache.
     };
@@ -111,14 +110,13 @@ namespace LExTextureMatch
 
     struct CMipEntry
     {
-        std::uint32_t   UncompressedSize;       // Number of bytes this mip occupies when fully uncompressed.
-        std::uint32_t   CompressedSize;         // Number of bytes this mip currently occupies on the disk.
-        std::uint32_t   CompressedOffset;       // Number of bytes from start of manifest or texture file cache to this mip's contents.
-        std::uint16_t   Width;                  // Size in horizontal dimension.
-        std::uint16_t   Height;                 // Size in vertical dimension.
+        std::int32_t    UncompressedSize;       // Number of bytes this mip occupies when fully uncompressed.
+        std::int32_t    CompressedSize;         // Number of bytes this mip currently occupies on the disk.
+        std::int32_t    CompressedOffset;       // Number of bytes from start of manifest or texture file cache to this mip's contents.
+        std::int16_t    Width;                  // Size in horizontal dimension.
+        std::int16_t    Height;                 // Size in vertical dimension.
         EMipFlags       Flags;                  // Additional settings for this mip.
 
-        inline bool IsPlaceholder() const noexcept { return (Flags & EMF_Placeholder) != 0; }
         inline bool IsOriginal() const noexcept { return (Flags & EMF_Original) != 0; }
         inline bool IsExternal() const noexcept { return (Flags & EMF_External) != 0; }
 
@@ -128,14 +126,27 @@ namespace LExTextureMatch
         std::pair<std::uint16_t, std::uint16_t> GetDimensions() const noexcept;
     };
 
+    struct CGuid
+    {
+        std::int32_t A{ 0 }, B{ 0 }, C{ 0 }, D{ 0 };
+
+        explicit CGuid(FGuid const& In) : A{ In.A }, B{ In.B }, C{ In.C }, D{ In.D } {}
+        explicit operator FGuid() const { return FGuid{ .A = A, .B = B, .C = C, .D = D }; }
+
+        inline bool operator==(CGuid const& Other) { return A == Other.A && B == Other.B && C == Other.C && D == Other.D; }
+        inline bool operator!=(CGuid const& Other) { return !(*this == Other); }
+    };
+
     struct CTextureEntry
     {
         static constexpr std::size_t k_maxFullPathLength = 256;
         static constexpr std::size_t k_maxTfcNameLength = 64;
-        static constexpr std::size_t k_maxMipCount = 14;
+        static constexpr std::size_t k_maxMipCount = 13;
 
         wchar_t         FullPath[k_maxFullPathLength];  // Full path of the Texture2D entry being matched (replaced).
         wchar_t         TfcName[k_maxTfcNameLength];    // Name of the texture file cache used by external mips in this entry.
+        CGuid           TfcGuid;                        // Guid of the texture file cache used by external mips in this entry.
+        std::int32_t    MipCount;                       // Number of mip records in @ref Mips, no more than @ref k_maxMipCount.
         CMipEntry       Mips[k_maxMipCount];            // Mip records, their count and meta must match the original mips.
         EPixelFormat    Format;                         // Pixel format for all mips, must match the LE definition.
 
@@ -143,8 +154,6 @@ namespace LExTextureMatch
         FString GetFullPath() const;
         /** Retrieves the texture file cache name as an Unreal string. */
         FString GetTfcName() const;
-        /** Finds the actual number of mips. */
-        std::size_t GetMipCount() const;
     };
 
 #pragma pack(pop)
@@ -176,11 +185,21 @@ namespace LExTextureMatch
          */
         bool Load(std::wstring_view InPath, FString& OutError);
 
+#pragma pack(push, 8)
         struct ResolvedMip final
         {
-            std::span<unsigned char const> View{};
-            CMipEntry const* Entry{};
+            using Payload_t = std::span<unsigned char const>;
+
+            CMipEntry   Entry{};
+            Payload_t   Payload{};
+
+            /** Checks if this entry record should be expected to have embedded payload. */
+            inline bool ShouldHavePayload() const noexcept
+            {
+                return !Entry.IsEmpty() && !Entry.IsOriginal() && !Entry.IsExternal();
+            }
         };
+#pragma pack(pop)
 
         /**
          * @brief       Attempts to find a texture override entry by its @c FullPath .
@@ -197,7 +216,7 @@ namespace LExTextureMatch
          * @return      Mip override entry, and the memory region it corresponds to if it's not empty.
          * @warning     This manifest must be loaded before calling this method.
          * @warning     The @c Index parameter must be within this entry's mip array bounds.
-         *              Call @ref CTextureEntry::GetMipCount() beforehand to verify.
+         *              Check @ref CTextureEntry::MipCount beforehand to verify.
          */
         ResolvedMip GetEntryMip(CTextureEntry const& InEntry, std::size_t Index) const;
 

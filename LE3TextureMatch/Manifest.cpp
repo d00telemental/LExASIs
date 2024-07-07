@@ -55,17 +55,6 @@ namespace LExTextureMatch
         return FString::Printf(L"%s", TfcName);
     }
 
-    std::size_t CTextureEntry::GetMipCount() const
-    {
-        size_t i = 0;
-        for (; i < k_maxMipCount; ++i)
-        {
-            if (Mips[i].IsPlaceholder())
-                break;
-        }
-        return i;
-    }
-
 
     // ! ManifestLoader implementation.
     // ========================================
@@ -176,7 +165,7 @@ namespace LExTextureMatch
             FString const EntryFullPath = Entry->GetFullPath();
 
             LEASI_TRACE(L"adding manifest entry {} with {} mip(s) in texture file cache '{}'",
-                *EntryFullPath, Entry->GetMipCount(), *Entry->GetTfcName());
+                *EntryFullPath, Entry->MipCount, *Entry->GetTfcName());
 
             bool const bUniqueTexture = TextureMap.emplace(EntryFullPath, Entry).second;
             if (!bUniqueTexture)
@@ -206,19 +195,17 @@ namespace LExTextureMatch
 
     ManifestLoader::ResolvedMip ManifestLoader::GetEntryMip(CTextureEntry const& InEntry, std::size_t const Index) const
     {
-        LEASI_CHECKA(ValidateEntry(InEntry), "invalid entry provenance", "");
-        LEASI_VERIFYA(Index < InEntry.GetMipCount(), "mip index ({}) out of bounds ({})", Index, InEntry.GetMipCount());
+        LEASI_CHECKA(ValidateEntry(InEntry), "mismatched entry provenance", "");
+        LEASI_CHECKA(Index < InEntry.MipCount, "mip index ({}) out of bounds ({})", Index, InEntry.MipCount);
 
         ResolvedMip Resolved{};
-        Resolved.Entry = &InEntry.Mips[Index];
+        Resolved.Entry = InEntry.Mips[Index];
 
-        // This *should* not happen due to how GetMipCount() works...
-        LEASI_CHECKA(!Resolved.Entry->IsPlaceholder(), "can't retrieve placeholder mip record", "");
-
-        if (!Resolved.Entry->IsEmpty())
+        // All mips that are "empty", "original", or "external" must specify no embedded payload.
+        if (!Resolved.Entry.IsEmpty() && !Resolved.Entry.IsOriginal() && !Resolved.Entry.IsExternal())
         {
-            auto const [Offset, Count] = std::tie(Resolved.Entry->CompressedOffset, Resolved.Entry->CompressedSize);
-            Resolved.View = GetMappedView().subspan(static_cast<std::size_t>(Offset), static_cast<std::size_t>(Count));
+            auto const [Offset, Count] = std::tie(Resolved.Entry.CompressedOffset, Resolved.Entry.CompressedSize);
+            Resolved.Payload = GetMappedView().subspan(static_cast<std::size_t>(Offset), static_cast<std::size_t>(Count));
         }
 
         return Resolved;
