@@ -1,6 +1,7 @@
 #include "LExCommon/Base.hpp"
 #include "LE3TextureMatch/Entry.hpp"
 #include "LE3TextureMatch/Hooks.hpp"
+#include "LE3TextureMatch/Loading.hpp"
 
 
 SPI_PLUGINSIDE_SUPPORT(L"LE3TextureMatch", L"d00telemental", L"0.1.0", SPI_GAME_LE3, SPI_VERSION_ANY);
@@ -18,6 +19,7 @@ SPI_IMPLEMENT_ATTACH
     ::LExTextureMatch::InitializeHooks(Init);
 
     LEASI_INFO("hello there, {}!", "LE3TextureMatch");
+    ::LExTextureMatch::LoadDlcManifests();
 
     return true;
 }

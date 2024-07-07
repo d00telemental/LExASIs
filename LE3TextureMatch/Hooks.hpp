@@ -18,7 +18,7 @@ struct CMipMapInfo
     void*               Data;               // 0x28
     int                 Unknown_2C;         // 0x2C
     void*               Archive;            // 0x34
-    int                 Unknown_3C;         // 0x3C
+    int                 bNeedsFree;         // 0x3C
     std::int32_t        Width;              // 0x40
     std::int32_t        Height;             // 0x44
 };
@@ -27,6 +27,7 @@ static_assert(sizeof(CMipMapInfo) == 0x48);
 static_assert(offsetof(CMipMapInfo, Flags) == 0x08);
 static_assert(offsetof(CMipMapInfo, Data) == 0x28);
 static_assert(offsetof(CMipMapInfo, Archive) == 0x34);
+static_assert(offsetof(CMipMapInfo, bNeedsFree) == 0x3C);
 static_assert(offsetof(CMipMapInfo, Width) == 0x40);
 static_assert(offsetof(CMipMapInfo, Height) == 0x44);
 

@@ -157,7 +157,7 @@ namespace LExTextureMatch
         LEASI_VERIFYW(EntryTableEnd % 4 == 0, L"entry table end not aligned", L"");
 
         TextureMap.reserve(static_cast<std::size_t>(Header->TextureCount));
-        auto const* const TextureEntryStart = (CTextureEntry const*)((unsigned char const*)View + EntryTableEnd);
+        auto const* const TextureEntryStart = (CTextureEntry const*)((unsigned char const*)View + sizeof(CManifestHeader));
 
         for (std::size_t i = 0; i < Header->TextureCount; ++i)
         {

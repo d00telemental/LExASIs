@@ -6,6 +6,8 @@ set (PROJ_SOURCES
   ${PROJ_FOLDER}/Entry.hpp
   ${PROJ_FOLDER}/Hooks.cpp
   ${PROJ_FOLDER}/Hooks.hpp
+  ${PROJ_FOLDER}/Loading.cpp
+  ${PROJ_FOLDER}/Loading.hpp
   ${PROJ_FOLDER}/Manifest.cpp
   ${PROJ_FOLDER}/Manifest.hpp
 )
