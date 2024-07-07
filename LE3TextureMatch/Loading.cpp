@@ -1,5 +1,6 @@
 #include <filesystem>
 #include "LE3TextureMatch/Loading.hpp"
+#include "LE3TextureMatch/Manifest.hpp"
 
 namespace fs = std::filesystem;
 
@@ -41,6 +42,107 @@ namespace LExTextureMatch
             }
 
             g_loadedManifests.push_back(std::move(Manifest));
+        }
+    }
+
+    FString const& GetTextureFullName(UTexture2D* const InObject)
+    {
+        thread_local FString OutString{};
+        OutString.Clear();
+
+        if (InObject->Class != nullptr)
+        {
+            if (InObject->Outer != nullptr)
+            {
+                if (InObject->Outer->Outer != nullptr)
+                {
+                    LESDK::AppendObjectName(InObject->Outer->Outer, OutString, SFXName::k_formatBasic);
+                    OutString.Append(L".");
+                }
+
+                LESDK::AppendObjectName(InObject->Outer, OutString, SFXName::k_formatBasic);
+                OutString.Append(L".");
+            }
+
+            LESDK::AppendObjectName(InObject, OutString, SFXName::k_formatInstanced);
+            return OutString;
+        }
+
+        OutString.Append(L"(null)");
+        return OutString;
+    }
+
+    void UpdateTextureFromManifest(UTexture2D* const InTexture,
+        ManifestLoader const& Manifest, CTextureEntry const& Entry)
+    {
+        LEASI_CHECKA(InTexture != nullptr, "", "");
+
+        if (Entry.MipCount < 1 || Entry.MipCount > CTextureEntry::k_maxMipCount)
+        {
+            LEASI_WARN("UpdateTextureFromManifest: aborting due to invalid mip count {}", Entry.MipCount);
+            return;
+        }
+
+        if (Entry.MipCount != InTexture->Mips.ArrayNum)
+        {
+            // Idk how much this would break.
+            LEASI_WARN("UpdateTextureFromManifest: updating with different mip count, not well-tested");
+        }
+
+        // Assuming the first mip is the largest so we can use its size.
+        auto const& [FirstEntry, FirstContents] = Manifest.GetEntryMip(Entry, 0);
+
+        InTexture->TextureFileCacheGuid = InTexture->TFCFileGuid = (FGuid)Entry.TfcGuid;
+        InTexture->TextureFileCacheName = SFXName(*Entry.GetTfcName(), 0);
+        InTexture->OriginalSizeX = InTexture->SizeX = FirstEntry.Width;
+        InTexture->OriginalSizeY = InTexture->SizeY = FirstEntry.Height;
+        InTexture->Format = (unsigned char)Entry.Format;
+
+        void* PreservedVftable = nullptr;
+
+        // Deallocate the indirect mip array.
+        {
+            auto& Mips = *(TArray<CMipMapInfo*>*) &InTexture->Mips;
+            for (CMipMapInfo* Mip : Mips)
+            {
+                PreservedVftable = Mip->Vftable;
+                if (Mip->bNeedsFree)
+                {
+                    (*GMalloc)->Free(Mip->Data);
+                    Mip->Data = nullptr;
+                }
+                (*GMalloc)->Free(Mip);
+            }
+
+            Mips.Clear();
+            Mips.Shrink();
+        }
+
+        //LEASI_WARN("UpdateTextureFromManifest: GOOD NEWS: it all deallocated just fine");
+
+        // Allocate a new indirect mip array.
+        {
+            auto& Mips = *new ((void*)&InTexture->Mips) TArray<CMipMapInfo*>();
+            for (int i = 0; i < Entry.MipCount; ++i)
+            {
+                auto const [MipEntry, MipContents] = Manifest.GetEntryMip(Entry, i);
+
+                auto const NextMip = new CMipMapInfo();
+                std::memset(NextMip, 0, sizeof *NextMip);
+
+                NextMip->Vftable = PreservedVftable;
+                NextMip->Flags = MipEntry.IsExternal() ? 4105 : 8;
+                NextMip->Elements = MipEntry.UncompressedSize;
+                NextMip->CompressedOffset = MipEntry.CompressedOffset;
+                NextMip->CompressedSize = MipEntry.CompressedSize;
+                NextMip->Data = MipEntry.ShouldHavePayload() ? (void*)MipContents.data() : nullptr;
+                NextMip->bNeedsFree = FALSE;
+                NextMip->Archive = nullptr;
+                NextMip->Width = MipEntry.Width;
+                NextMip->Height = MipEntry.Height;
+
+                Mips.Add(NextMip);
+            }
         }
     }
 }

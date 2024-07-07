@@ -124,6 +124,12 @@ namespace LExTextureMatch
         bool IsEmpty() const noexcept;
         /** Retrieves mip dimensions as a tuple. */
         std::pair<std::uint16_t, std::uint16_t> GetDimensions() const noexcept;
+
+        /** Checks if this entry should be expected to have embedded payload. */
+        inline bool ShouldHavePayload() const noexcept
+        {
+            return !IsEmpty() && !IsOriginal() && !IsExternal();
+        }
     };
 
     struct CGuid
@@ -192,12 +198,6 @@ namespace LExTextureMatch
 
             CMipEntry   Entry{};
             Payload_t   Payload{};
-
-            /** Checks if this entry record should be expected to have embedded payload. */
-            inline bool ShouldHavePayload() const noexcept
-            {
-                return !Entry.IsEmpty() && !Entry.IsOriginal() && !Entry.IsExternal();
-            }
         };
 #pragma pack(pop)
 
