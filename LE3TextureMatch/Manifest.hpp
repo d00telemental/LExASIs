@@ -97,26 +97,26 @@ namespace LExTextureMatch
 
     struct CManifestHeader
     {
-        unsigned char   Magic[6];       // Magic bytes of 'LETEXM'.
-        std::uint16_t   Version;        // Manifest version (not the mod version).
-        std::uint32_t   TargetHash;     // FNV-1 (32 bit) of containing folder name, or UINT32_MAX for joint deployment.
-        std::uint32_t   TextureCount;   // Number of @ref CTextureEntry entries after this header.
+        unsigned char   Magic[6];               // Magic bytes of 'LETEXM'.
+        std::uint16_t   Version;                // Manifest version (not the mod version).
+        std::uint32_t   TargetHash;             // FNV-1 (32 bit) of containing folder name, or UINT32_MAX for joint deployment.
+        std::uint32_t   TextureCount;           // Number of @ref CTextureEntry entries after this header.
         unsigned char   Reserved[16];
 
-        static constexpr decltype(Magic)    k_checkMagic{ 'L', 'E', 'T', 'E', 'X', 'M' };
-        static constexpr decltype(Version)  k_lastVersion{ 1 };
+        static constexpr decltype(Magic)        k_checkMagic{ 'L', 'E', 'T', 'E', 'X', 'M' };
+        static constexpr decltype(Version)      k_lastVersion{ 1 };
     };
 
     static_assert(sizeof(CManifestHeader) == 32);
 
     struct CMipEntry
     {
-        std::uint32_t   UnpackedSize;   // Number of bytes this mip occupies when fully uncompressed.
-        std::uint32_t   PackedSize;     // Number of bytes this mip currently occupies on the disk.
-        std::uint32_t   PackedOffset;   // Number of bytes from start of manifest to this mip contents.
-        std::uint16_t   Width;          // Size in horizontal dimension.
-        std::uint16_t   Height;         // Size in vertical dimension.
-        EMipFlags       Flags;          // Additional settings for this mip.
+        std::uint32_t   UncompressedSize;       // Number of bytes this mip occupies when fully uncompressed.
+        std::uint32_t   CompressedSize;         // Number of bytes this mip currently occupies on the disk.
+        std::uint32_t   CompressedOffset;       // Number of bytes from start of manifest or texture file cache to this mip's contents.
+        std::uint16_t   Width;                  // Size in horizontal dimension.
+        std::uint16_t   Height;                 // Size in vertical dimension.
+        EMipFlags       Flags;                  // Additional settings for this mip.
 
         inline bool IsPlaceholder() const noexcept { return (Flags & EMF_Placeholder) != 0; }
         inline bool IsOriginal() const noexcept { return (Flags & EMF_Original) != 0; }
@@ -131,11 +131,11 @@ namespace LExTextureMatch
     struct CTextureEntry
     {
         static constexpr std::size_t k_maxFullPathLength = 256;
-        static constexpr std::size_t k_maxTfcNameLength = 32;
-        static constexpr std::size_t k_maxMipCount = 16;
+        static constexpr std::size_t k_maxTfcNameLength = 64;
+        static constexpr std::size_t k_maxMipCount = 14;
 
-        char            FullPath[k_maxFullPathLength];  // Full path of the Texture2D entry being matched (replaced).
-        char            TfcName[k_maxTfcNameLength];    // Name of the texture file cache used by external mips in this entry.
+        wchar_t         FullPath[k_maxFullPathLength];  // Full path of the Texture2D entry being matched (replaced).
+        wchar_t         TfcName[k_maxTfcNameLength];    // Name of the texture file cache used by external mips in this entry.
         CMipEntry       Mips[k_maxMipCount];            // Mip records, their count and meta must match the original mips.
         EPixelFormat    Format;                         // Pixel format for all mips, must match the LE definition.
 

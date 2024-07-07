@@ -17,14 +17,25 @@ namespace LExTextureMatch
         return nullptr;
     }
 
+    template<std::size_t Length>
+    wchar_t const* FindChar(const wchar_t(&Haystack)[Length], wchar_t const Needle)
+    {
+        for (std::size_t i = 0; i < Length; ++i)
+        {
+            if (Haystack[i] == Needle)
+                return &(Haystack[i]);
+        }
+        return nullptr;
+    }
+
 
     // ! Plain-old-data struct implementations.
     // ========================================
 
     bool CMipEntry::IsEmpty() const noexcept
     {
-        return !IsExternal() && UnpackedSize == 0
-            && PackedSize == UINT32_MAX && PackedOffset == UINT32_MAX;
+        return !IsExternal() && UncompressedSize == 0
+            && CompressedSize == UINT32_MAX && CompressedOffset == UINT32_MAX;
     }
 
     std::pair<std::uint16_t, std::uint16_t> CMipEntry::GetDimensions() const noexcept
@@ -34,14 +45,14 @@ namespace LExTextureMatch
 
     FString CTextureEntry::GetFullPath() const
     {
-        LEASI_VERIFYA(FindChar(FullPath, '\0') != nullptr, "invalid full path", "");
-        return FString::Printf(L"%S", FullPath);
+        LEASI_VERIFYA(FindChar(FullPath, L'\0') != nullptr, "invalid full path", "");
+        return FString::Printf(L"%s", FullPath);
     }
 
     FString CTextureEntry::GetTfcName() const
     {
-        LEASI_VERIFYA(FindChar(TfcName, '\0') != nullptr, "invalid tfc name", "");
-        return FString::Printf(L"%S", TfcName);
+        LEASI_VERIFYA(FindChar(TfcName, L'\0') != nullptr, "invalid tfc name", "");
+        return FString::Printf(L"%s", TfcName);
     }
 
     std::size_t CTextureEntry::GetMipCount() const
@@ -206,7 +217,7 @@ namespace LExTextureMatch
 
         if (!Resolved.Entry->IsEmpty())
         {
-            auto const [Offset, Count] = std::tie(Resolved.Entry->PackedOffset, Resolved.Entry->PackedSize);
+            auto const [Offset, Count] = std::tie(Resolved.Entry->CompressedOffset, Resolved.Entry->CompressedSize);
             Resolved.View = GetMappedView().subspan(static_cast<std::size_t>(Offset), static_cast<std::size_t>(Count));
         }
 
