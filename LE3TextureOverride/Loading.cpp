@@ -1,6 +1,6 @@
 #include <filesystem>
-#include "LE3TextureMatch/Loading.hpp"
-#include "LE3TextureMatch/Manifest.hpp"
+#include "LE3TextureOverride/Loading.hpp"
+#include "LE3TextureOverride/Manifest.hpp"
 
 namespace fs = std::filesystem;
 
@@ -12,7 +12,7 @@ namespace LExTextureMatch
     {
         fs::path const DlcFolder{ k_searchFoldersRoot };
         LEASI_INFO(L"looking for dlc roots in {}", DlcFolder.c_str());
-        
+
         for (fs::directory_entry const& DlcRoot : fs::directory_iterator{ DlcFolder })
         {
             auto const& DlcPath = DlcRoot.path();
@@ -25,7 +25,7 @@ namespace LExTextureMatch
             }
 
             auto const ManifestPath = DlcPath / std::format(L"{}_TextureOverride.letexm", DlcName);
-            LEASI_DEBUG(L"looking for manifest {}", ManifestPath.c_str());
+            LEASI_TRACE(L"looking for manifest {}", ManifestPath.c_str());
 
             if (!fs::exists(ManifestPath))
                 continue;
@@ -100,25 +100,35 @@ namespace LExTextureMatch
 
         void* PreservedVftable = nullptr;
 
-        // Deallocate the indirect mip array.
+        // Deallocate the existing indirect mip array.
         {
             auto& Mips = *(TArray<CMipMapInfo*>*) &InTexture->Mips;
             for (CMipMapInfo* Mip : Mips)
             {
-                PreservedVftable = Mip->Vftable;
+                if (PreservedVftable == nullptr)
+                {
+                    // The first vftable encountered is likely correct.
+                    PreservedVftable = Mip->Vftable;
+                }
+                else if (PreservedVftable != Mip->Vftable)
+                {
+                    LEASI_WARN("UpdateTextureFromManifest: different vftables encountered: {} != {}",
+                        (void*)PreservedVftable, (void*)Mip->Vftable);
+                }
+
+
                 if (Mip->bNeedsFree)
                 {
                     (*GMalloc)->Free(Mip->Data);
                     Mip->Data = nullptr;
                 }
+
                 (*GMalloc)->Free(Mip);
             }
 
             Mips.Clear();
             Mips.Shrink();
         }
-
-        //LEASI_WARN("UpdateTextureFromManifest: GOOD NEWS: it all deallocated just fine");
 
         // Allocate a new indirect mip array.
         {
@@ -131,11 +141,21 @@ namespace LExTextureMatch
                 std::memset(NextMip, 0, sizeof *NextMip);
 
                 NextMip->Vftable = PreservedVftable;
-                NextMip->Flags = MipEntry.IsExternal() ? 4105 : 8;
+                NextMip->Flags = ETF_SingleUse;
+                if (MipEntry.IsExternal())
+                {
+                    auto const ExternalFlags = ETF_External | ETF_OodleCompression;
+                    NextMip->Flags = static_cast<ETextureFlags>(NextMip->Flags | ExternalFlags);
+                }
                 NextMip->Elements = MipEntry.UncompressedSize;
                 NextMip->CompressedOffset = MipEntry.CompressedOffset;
                 NextMip->CompressedSize = MipEntry.CompressedSize;
-                NextMip->Data = MipEntry.ShouldHavePayload() ? (void*)MipContents.data() : nullptr;
+                NextMip->Data = nullptr;
+                if (MipEntry.ShouldHavePayload())
+                {
+                    LEASI_CHECKA(!MipContents.empty(), "empty mip payload", "");
+                    NextMip->Data = (void*)MipContents.data();
+                }
                 NextMip->bNeedsFree = FALSE;
                 NextMip->Archive = nullptr;
                 NextMip->Width = MipEntry.Width;

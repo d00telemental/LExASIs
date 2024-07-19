@@ -1,5 +1,5 @@
-#include "LE3TextureMatch/Hooks.hpp"
-#include "LE3TextureMatch/Loading.hpp"
+#include "LE3TextureOverride/Hooks.hpp"
+#include "LE3TextureOverride/Loading.hpp"
 
 namespace LExTextureMatch
 {
@@ -17,7 +17,7 @@ namespace LExTextureMatch
             if (Entry == nullptr)
                 continue;
 
-            LEASI_DEBUG(L"UTexture2D::Serialize: replacing {}", *TextureFullName);
+            LEASI_INFO(L"UTexture2D::Serialize: replacing {}", *TextureFullName);
             UpdateTextureFromManifest(Context, *Manifest, *Entry);
         }
     }

@@ -27,7 +27,7 @@ endif ()
 if (CMAKE_GENERATOR MATCHES "Visual Studio 17 2022")
   set (LEASI_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/Build/$<CONFIG>)
   message ("-- Detected supported generator: ${CMAKE_GENERATOR}")
-	message ("-- Configured output path: ${LEASI_OUTPUT_DIRECTORY}")
+  message ("-- Configured output path: ${LEASI_OUTPUT_DIRECTORY}")
 else ()
   message (FATAL_ERROR "!! Detected unsupported generator: ${CMAKE_GENERATOR}")
 endif ()
@@ -78,15 +78,15 @@ endif ()
 
 add_subdirectory ("External")
 add_subdirectory ("LExCommon")
-add_subdirectory ("LE3TextureMatch")
+add_subdirectory ("LE3TextureOverride")
 
-set_property (DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT "LE3TextureMatch")
+set_property (DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT "LE3TextureOverride")
 
 set (REPO_SOURCES
-	.gitignore
-	.gitmodules
-	CMakeLists.txt
-	CMakePresets.json
+  .gitignore
+  .gitmodules
+  CMakeLists.txt
+  CMakePresets.json
 )
 
 add_custom_target (Repository SOURCES ${REPO_SOURCES})

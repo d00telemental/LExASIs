@@ -1,4 +1,4 @@
-set (PROJ_TARGET LE3TextureMatch)
+set (PROJ_TARGET LE3TextureOverride)
 set (PROJ_FOLDER ${CMAKE_CURRENT_SOURCE_DIR})
 
 set (PROJ_SOURCES

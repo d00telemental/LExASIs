@@ -1,24 +1,24 @@
 #include "LExCommon/Base.hpp"
-#include "LE3TextureMatch/Entry.hpp"
-#include "LE3TextureMatch/Hooks.hpp"
-#include "LE3TextureMatch/Loading.hpp"
+#include "LE3TextureOverride/Entry.hpp"
+#include "LE3TextureOverride/Hooks.hpp"
+#include "LE3TextureOverride/Loading.hpp"
 
 
-SPI_PLUGINSIDE_SUPPORT(L"LE3TextureMatch", L"d00telemental", L"0.1.0", SPI_GAME_LE3, SPI_VERSION_ANY);
+SPI_PLUGINSIDE_SUPPORT(L"LE3TextureOverride", L"d00telemental", L"0.1.0", SPI_GAME_LE3, SPI_VERSION_ANY);
 SPI_PLUGINSIDE_POSTLOAD;
 SPI_PLUGINSIDE_ASYNCATTACH;
 
 
 SPI_IMPLEMENT_ATTACH
 {
-    ::LESDK::Initializer Init{ InterfacePtr, "LE3TextureMatch" };
+    ::LESDK::Initializer Init{ InterfacePtr, "LE3TextureOverride" };
 
     ::LESDK::InitializeConsole();
     ::LExTextureMatch::InitializeLogger();
     ::LExTextureMatch::InitializeGlobals(Init);
     ::LExTextureMatch::InitializeHooks(Init);
 
-    LEASI_INFO("hello there, {}!", "LE3TextureMatch");
+    LEASI_INFO("hello there, {}!", "LE3TextureOverride");
     ::LExTextureMatch::LoadDlcManifests();
 
     return true;
@@ -36,7 +36,7 @@ namespace LExTextureMatch
 {
     void InitializeLogger()
     {
-        spdlog::default_logger()->set_pattern("%^[%H:%M:%S.%e] [%l] (LE3TextureMatch) %v%$");
+        spdlog::default_logger()->set_pattern("%^[%H:%M:%S.%e] [%l] (LE3TextureOverride) %v%$");
         spdlog::default_logger()->set_level(spdlog::level::trace);
     }
 

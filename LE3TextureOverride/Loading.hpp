@@ -5,7 +5,7 @@
 #include <vector>
 #include <LESDK/Headers.hpp>
 #include "LExCommon/Base.hpp"
-#include "LE3TextureMatch/Manifest.hpp"
+#include "LE3TextureOverride/Manifest.hpp"
 
 
 namespace LExTextureMatch
@@ -46,22 +46,32 @@ namespace LExTextureMatch
     };
 
 
+    // ! Engine types.
+    // ========================================
+
+    enum ETextureFlags : std::uint32_t
+    {
+        ETF_External            = 1 << 0,           // Mip is stored in an external file (texture file cache).
+        ETF_SingleUse           = 1 << 3,           // Purpose unknown...
+        ETF_OodleCompression    = 1 << 12,          // Mip is compressed with Oodle.
+    };
+
     #pragma pack(push, 1)
 
     struct CMipMapInfo final : public AllocateThroughEngine
     {
-        void*               Vftable;            // 0x00
-        std::uint32_t       Flags;              // 0x08
-        std::int32_t        Elements;           // 0x0C
-        std::int32_t        CompressedOffset;   // 0x10
-        std::int32_t        CompressedSize;     // 0x14
-        unsigned char       Unknown_18[0x10];   // 0x18
-        void*               Data;               // 0x28
-        int                 Unknown_2C;         // 0x2C
-        void*               Archive;            // 0x34
-        int                 bNeedsFree;         // 0x3C
-        std::int32_t        Width;              // 0x40
-        std::int32_t        Height;             // 0x44
+        void*                   Vftable;            // 0x00
+        ETextureFlags           Flags;              // 0x08
+        std::int32_t            Elements;           // 0x0C
+        std::int32_t            CompressedOffset;   // 0x10
+        std::int32_t            CompressedSize;     // 0x14
+        unsigned char           Unknown_18[0x10];   // 0x18
+        void*                   Data;               // 0x28
+        int                     Unknown_2C;         // 0x2C
+        void*                   Archive;            // 0x34
+        int                     bNeedsFree;         // 0x3C
+        std::int32_t            Width;              // 0x40
+        std::int32_t            Height;             // 0x44
     };
 
     static_assert(sizeof(CMipMapInfo) == 0x48);
