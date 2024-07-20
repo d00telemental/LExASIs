@@ -5,47 +5,12 @@
 #include <vector>
 #include <LESDK/Headers.hpp>
 #include "Common/Base.hpp"
+#include "Common/Memory.hpp"
 #include "TextureOverride/Manifest.hpp"
 
 
-namespace LExTextureMatch
+namespace TextureOverride
 {
-    /**
-     * @brief
-     * A mixin class which ensures that derived types,
-     * when using new / delete operators, are (de)allocated
-     * through the game's allocator (GMalloc).
-     */
-    class AllocateThroughEngine
-    {
-    public:
-
-        void* operator new(size_t const Size)
-        {
-            assert(GMalloc != nullptr);
-            return (*GMalloc)->Malloc(static_cast<DWORD>(Size), 16);
-        }
-
-        void* operator new[](size_t const Size)
-        {
-            assert(GMalloc != nullptr);
-            return (*GMalloc)->Malloc(static_cast<DWORD>(Size), 16);
-        }
-
-        void operator delete(void* const Pointer)
-        {
-            assert(GMalloc != nullptr);
-            (*GMalloc)->Free(Pointer);
-        }
-
-        void operator delete[](void* const Pointer)
-        {
-            assert(GMalloc != nullptr);
-            (*GMalloc)->Free(Pointer);
-        }
-    };
-
-
     // ! Engine types.
     // ========================================
 
@@ -58,7 +23,7 @@ namespace LExTextureMatch
 
     #pragma pack(push, 1)
 
-    struct CMipMapInfo final : public AllocateThroughEngine
+    struct CMipMapInfo final : public Common::AllocateThroughEngine
     {
         void*                   Vftable;            // 0x00
         ETextureFlags           Flags;              // 0x08

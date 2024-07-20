@@ -18,7 +18,7 @@ struct std::hash<FString>
 };
 
 
-namespace LExTextureMatch
+namespace TextureOverride
 {
     // ! Enumerations.
     // ========================================

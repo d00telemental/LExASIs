@@ -5,7 +5,7 @@
 #include <SPI.h>
 
 
-namespace LExTextureMatch
+namespace TextureOverride
 {
     void InitializeLogger();
     void InitializeGlobals(::LESDK::Initializer& Init);

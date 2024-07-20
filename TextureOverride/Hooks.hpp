@@ -5,7 +5,7 @@
 #include "Common/Base.hpp"
 
 
-namespace LExTextureMatch
+namespace TextureOverride
 {
     #define UTEXTURE2D_SERIALIZE_RVA ::LESDK::Address::FromOffset(0x3C1FB0)
     using t_UTexture2D_Serialize = void(UTexture2D* Context, void* Archive);

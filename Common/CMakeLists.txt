@@ -4,5 +4,7 @@ asi_target (Common
   SOURCES
     "Base.cpp"
     "Base.hpp"
+    "Memory.cpp"
+    "Memory.hpp"
   LINKS "spdlog"
   VLINKS "LESDK")

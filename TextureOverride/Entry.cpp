@@ -20,12 +20,12 @@ SPI_IMPLEMENT_ATTACH
     ::LESDK::Initializer Init{ InterfacePtr, "LE3TextureOverride" };
 
     ::LESDK::InitializeConsole();
-    ::LExTextureMatch::InitializeLogger();
-    ::LExTextureMatch::InitializeGlobals(Init);
-    ::LExTextureMatch::InitializeHooks(Init);
+    ::TextureOverride::InitializeLogger();
+    ::TextureOverride::InitializeGlobals(Init);
+    ::TextureOverride::InitializeHooks(Init);
 
     LEASI_INFO("hello there, {}!", "LE3TextureOverride");
-    ::LExTextureMatch::LoadDlcManifests();
+    ::TextureOverride::LoadDlcManifests();
 
     return true;
 }
@@ -38,7 +38,7 @@ SPI_IMPLEMENT_DETACH
 }
 
 
-namespace LExTextureMatch
+namespace TextureOverride
 {
     void InitializeLogger()
     {

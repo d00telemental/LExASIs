@@ -1,6 +1,6 @@
 #include "TextureOverride/Manifest.hpp"
 
-namespace LExTextureMatch
+namespace TextureOverride
 {
 
     // ! Utilities.

@@ -4,7 +4,8 @@
 
 namespace fs = std::filesystem;
 
-namespace LExTextureMatch
+
+namespace TextureOverride
 {
     std::vector<std::shared_ptr<ManifestLoader>> g_loadedManifests{};
 
@@ -13,7 +14,7 @@ namespace LExTextureMatch
         fs::path const DlcFolder{ k_searchFoldersRoot };
         LEASI_INFO(L"looking for dlc roots in {}", DlcFolder.c_str());
 
-        for (fs::directory_entry const& DlcRoot : fs::directory_iterator{ DlcFolder })
+        for (auto const& DlcRoot : fs::directory_iterator{ DlcFolder })
         {
             auto const& DlcPath = DlcRoot.path();
             std::wstring const DlcName{ DlcPath.filename().c_str() };
