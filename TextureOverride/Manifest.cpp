@@ -1,4 +1,4 @@
-#include "LE3TextureOverride/Manifest.hpp"
+#include "TextureOverride/Manifest.hpp"
 
 namespace LExTextureMatch
 {

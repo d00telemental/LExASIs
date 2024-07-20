@@ -4,8 +4,8 @@
 #include <memory>
 #include <vector>
 #include <LESDK/Headers.hpp>
-#include "LExCommon/Base.hpp"
-#include "LE3TextureOverride/Manifest.hpp"
+#include "Common/Base.hpp"
+#include "TextureOverride/Manifest.hpp"
 
 
 namespace LExTextureMatch

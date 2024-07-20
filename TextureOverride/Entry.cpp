@@ -1,7 +1,13 @@
-#include "LExCommon/Base.hpp"
-#include "LE3TextureOverride/Entry.hpp"
-#include "LE3TextureOverride/Hooks.hpp"
-#include "LE3TextureOverride/Loading.hpp"
+#include "Common/Base.hpp"
+#include "TextureOverride/Entry.hpp"
+#include "TextureOverride/Hooks.hpp"
+#include "TextureOverride/Loading.hpp"
+
+
+#ifndef SDK_TARGET_LE3
+    // This is only a proof of concept for now.
+    #error TextureOverride target only supports LE3 at the moment.
+#endif
 
 
 SPI_PLUGINSIDE_SUPPORT(L"LE3TextureOverride", L"d00telemental", L"0.1.0", SPI_GAME_LE3, SPI_VERSION_ANY);

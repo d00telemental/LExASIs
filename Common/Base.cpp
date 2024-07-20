@@ -1,4 +1,4 @@
-#include "LExCommon/Base.hpp"
+#include "Common/Base.hpp"
 
 void Common::InitializeLoggerDefault()
 {

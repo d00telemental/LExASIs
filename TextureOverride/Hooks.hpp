@@ -2,7 +2,7 @@
 
 #include <LESDK/Headers.hpp>
 #include <LESDK/Init.hpp>
-#include "LExCommon/Base.hpp"
+#include "Common/Base.hpp"
 
 
 namespace LExTextureMatch

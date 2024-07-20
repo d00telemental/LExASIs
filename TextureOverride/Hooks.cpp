@@ -1,5 +1,5 @@
-#include "LE3TextureOverride/Hooks.hpp"
-#include "LE3TextureOverride/Loading.hpp"
+#include "TextureOverride/Hooks.hpp"
+#include "TextureOverride/Loading.hpp"
 
 namespace LExTextureMatch
 {

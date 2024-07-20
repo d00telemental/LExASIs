@@ -25,7 +25,10 @@
                 "strategy": "external"
             },
             "cacheVariables": {
-                "CMAKE_CONFIGURATION_TYPES": "DEBUG;RELEASE"
+                "CMAKE_CONFIGURATION_TYPES": "DEBUG;RELEASE",
+                "LEASI_BUILD_LE1": true,
+                "LEASI_BUILD_LE2": true,
+                "LEASI_BUILD_LE3": true
             },
             "condition": {
                 "type": "equals",

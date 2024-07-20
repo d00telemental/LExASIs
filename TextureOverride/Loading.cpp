@@ -1,6 +1,6 @@
 #include <filesystem>
-#include "LE3TextureOverride/Loading.hpp"
-#include "LE3TextureOverride/Manifest.hpp"
+#include "TextureOverride/Loading.hpp"
+#include "TextureOverride/Manifest.hpp"
 
 namespace fs = std::filesystem;
 
